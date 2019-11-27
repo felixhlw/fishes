@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            font-family: 'Microsoft Jhenghei';
+            font-weight: 800;
+        }
+
+        #game {
+            margin: 0 auto;
+            width: 900px;
+            height: 600px;
+            /*         background: black; */
+            background-image: url(./bg.jpg);
+            background-position: center;
+            background-repeat: no-repeat;
+            /* background-attachment: fixed;  */
+            background-size: cover;
+            cursor: url(./cursor2.png) 50 50, auto;
+            overflow: hidden;
+            position: relative;
+            top: 20%;
+        }
+
+        #game img {
+            height: 80px;
+            position: absolute;
+
+        }
+
+        #start {
+            position: absolute;
+            margin: 0;
+            padding: 10px 30px;
+            border: solid 1px white;
+            color: white;
+            background: linear-gradient(to top, rgba(237, 255, 237, 0.945) , rgba(21, 155, 21, 0.1) 70%);
+            border-radius: 15px;
+            font-size: 20px;
+            top: 88%;
+            left: 43%;
+            text-align: center;
+            outline: none;
+            transition: all 0.1s ease;
+        }
+        #start:hover{
+            transform: scale(1.2);
+        }
+        #start:active{
+            transform: scale(1.1);
+            text-shadow: 0 0 2px white;
+            filter: drop-shadow(0 0 3px rgba(255,255,255,1));
+        }
+
+        .title {
+            color: white;
+            display: block;
+            padding: 10px 20px;
+            border: solid 1px white;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.2);
+
+            position: absolute;
+            top: 1%;
+            left: calc(50% - 150px);
+        }
+
+        .title2 {
+            color: white;
+            display: block;
+            padding: 10px 20px;
+            border: solid 1px white;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            position: absolute;
+            top: 1%;
+            left: calc(50% + 50px);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="game">
+
+        <input type="button" value="開始遊戲" id="start">
+        <p class="title"> 分數 <span id="score">0</span> 分</p>
+        <p class="title2"> 剩餘 <span id="sec">0</span> 秒</p>
+    </div>
+    <script src="jquery-3.4.1.min.js"></script>
+    <script>
+        $(function () {
+            //分數   
+            let score = 0;
+            //遊戲時間
+            let sec = 10;
+
+            //遊戲計時器
+            let gametimer = 0;
+
+            //僵屍的流水號
+            let zbid = 0;
+
+            //隨機
+            let rand = (num) => {
+                return Math.round(Math.random() * num);
+            }
+            /*         let rand2 = ()=>{
+                        let rev= Math.random()-Math.random();
+                        if (rev<0) {
+                            rev=-1;
+                        }else{
+                            rev=1;
+                        }
+                        return rev;
+                    } */
+            let movezb = (id, rr) => { //rr是舊的值
+                let r = rand(100); //r是新的值
+                let diff = r - rr;
+                /* console.log(diff); */
+                if (diff > 0) {
+                    $(`#zb${id}`).css({
+                        transform: `scale(1,1)`
+                    });
+                } else {
+                    $(`#zb${id}`).css({
+                        transform: `scale(-1,1)`
+                    });
+                }
+                $(`#zb${id}`).animate({
+                    left: r + "%",
+                    top: rand(100) + "%",
+                    height: "250px"
+                }, 3000, function () {
+                    movezb(id, rr);
+                })
+            }
+
+            //點開始按鈕時
+            $("#start").on("click", function () {
+                //將按鈕停用
+                $(this).attr("disabled", true);
+
+                //重設時間及分數 
+                sec = 10;
+                $("#sec").text(sec);
+                score = 0;
+                $("#score").text(score);
+                $("#game img").remove();
+
+                //開始倒數
+                gametimer = setInterval(() => {
+                    //每秒減1，修改文字呈現
+                    sec--;
+                    $("#sec").text(sec);
+
+                    //如果到了0
+                    if (sec == 0) {
+                        clearInterval(gametimer);
+                        $(this).attr("disabled", false);
+                        setTimeout(() => {
+
+                            alert("時間到!");
+                            $("#game img").remove();
+                        }, 100)
+                    }
+
+
+                    let num = rand(10); //產生怪物，出現位置也隨機產生
+                    if (num > 0) {
+                        let r = rand(100);
+                        console.log(r);
+                        $("#game").append(`<img src="big.gif" id="zb${zbid}">`)
+                        $(`#zb${zbid}`).css({
+                            left: `${r}%`,
+                            top: rand(80) + "%"
+                        });
+                        $(`#zb${zbid}`).fadeTo(0,0).fadeTo(500,1);
+                        movezb(zbid, r);
+                        zbid++;
+                    }
+                }, 1000)
+
+            })
+            //在click後面加上 "img"來過濾有這個東西才作用~
+            $("#game").on("click", "img", function () {
+                $(this).attr("src", "./kill.gif");
+                $(this).stop();
+/*                 $(this).css({
+                    transform: `scale(-1,1)`
+                }); */
+                $(this).css("pointer-events", "none");
+                $(this).fadeTo(500, 0);
+4
+            })
+
+
+        })
+    </script>
+
+</body>
+
+</html>
